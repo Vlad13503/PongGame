@@ -13,6 +13,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
+BALL_RADIUS = 10
 
 class Paddle:
     COLOR = WHITE
@@ -33,11 +34,32 @@ class Paddle:
         else:
             self.y += self.VELOCITY
 
-def draw(win, paddles):
+class Ball:
+    MAX_VELOCITY = 5
+    COLOR = WHITE
+
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.x_velocity = self.MAX_VELOCITY
+        self.y_velocity = 0
+
+    def drawBall(self, win):
+        pg.draw.circle(win, self.COLOR, (self.x, self.y), self.radius)
+
+    def moveBall(self):
+        self.x += self.x_velocity
+        self.y += self.y_velocity
+
+
+def draw(win, paddles, ball):
     win.fill(BLACK)
 
     for paddle in paddles:
         paddle.drawPaddle(WIN)
+
+    ball.drawBall(win)
 
     pg.display.update()
 
@@ -58,12 +80,14 @@ def main():
     running = True
     clock = pg.time.Clock()
 
-    left_paddle = Paddle(10, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
-    right_paddle = Paddle(width - 10 - PADDLE_WIDTH, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    left_paddle = Paddle(10, height // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    right_paddle = Paddle(width - 10 - PADDLE_WIDTH, height // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+
+    ball = Ball(width // 2, height // 2, BALL_RADIUS)
 
     while running:
         clock.tick(FPS)
-        draw(WIN, [left_paddle, right_paddle])
+        draw(WIN, [left_paddle, right_paddle], ball)
 
         for crtEvent in pg.event.get():
             if crtEvent.type == pg.QUIT:
@@ -71,11 +95,14 @@ def main():
                 break
             elif crtEvent.type == pg.VIDEORESIZE:
                 width, height = crtEvent.size
-                left_paddle = Paddle(10, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
-                right_paddle = Paddle(width - 10 - PADDLE_WIDTH, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+                left_paddle = Paddle(10, height // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+                right_paddle = Paddle(width - 10 - PADDLE_WIDTH, height // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
+                ball = Ball(width // 2, height // 2, BALL_RADIUS)
 
         keys = pg.key.get_pressed()
         handle_paddle_movement(keys, left_paddle, right_paddle)
+
+        ball.moveBall()
 
     pg.quit()
 
