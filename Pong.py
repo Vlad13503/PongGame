@@ -1,9 +1,10 @@
 import pygame as pg
 pg.init()
 
-WIDTH, HEIGHT = 700, 500
+width, height = 700, 500
+
 pg.display.set_icon(pg.image.load("PongLogo.jpg"))
-WIN = pg.display.set_mode((WIDTH, HEIGHT))
+WIN = pg.display.set_mode((width, height), pg.RESIZABLE)
 pg.display.set_caption("PONG")
 
 FPS = 60
@@ -41,22 +42,24 @@ def draw(win, paddles):
     pg.display.update()
 
 def handle_paddle_movement(keys, left_paddle, right_paddle):
-    if keys[pg.K_w]:
+    if keys[pg.K_w] and left_paddle.y - left_paddle.VELOCITY >= 0:
         left_paddle.movePaddle(up=True)
-    if keys[pg.K_s]:
+    if keys[pg.K_s] and left_paddle.y + left_paddle.VELOCITY + left_paddle.height <= height:
         left_paddle.movePaddle(up=False)
 
-    if keys[pg.K_UP]:
+    if keys[pg.K_UP] and right_paddle.y - right_paddle.VELOCITY >= 0:
         right_paddle.movePaddle(up=True)
-    if keys[pg.K_DOWN]:
+    if keys[pg.K_DOWN] and right_paddle.y + right_paddle.VELOCITY + right_paddle.height <= height:
         right_paddle.movePaddle(up=False)
 
 def main():
+    global width, height
+    
     running = True
     clock = pg.time.Clock()
 
-    left_paddle = Paddle(10, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
-    right_paddle = Paddle(WIDTH - 10 - PADDLE_WIDTH, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    left_paddle = Paddle(10, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    right_paddle = Paddle(width - 10 - PADDLE_WIDTH, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
 
     while running:
         clock.tick(FPS)
@@ -66,6 +69,10 @@ def main():
             if crtEvent.type == pg.QUIT:
                 running = False
                 break
+            elif crtEvent.type == pg.VIDEORESIZE:
+                width, height = crtEvent.size
+                left_paddle = Paddle(10, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+                right_paddle = Paddle(width - 10 - PADDLE_WIDTH, height//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
 
         keys = pg.key.get_pressed()
         handle_paddle_movement(keys, left_paddle, right_paddle)
