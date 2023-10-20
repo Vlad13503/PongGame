@@ -63,6 +63,29 @@ def draw(win, paddles, ball):
 
     pg.display.update()
 
+def handle_collision(ball, left_paddle, right_paddle):
+    if ball.y + ball.radius >= height or ball.y - ball.radius <= 0:
+        ball.y_velocity *= -1
+
+    if ball.x_velocity < 0:
+        if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
+            if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
+                ball.x_velocity *= -1
+                middle_y = left_paddle.y + left_paddle.height / 2
+                difference_y = middle_y - ball.y
+                reduction_factor = (left_paddle.height / 2) / ball.MAX_VELOCITY
+                y_velocity = difference_y / reduction_factor
+                ball.y_velocity = -1 * y_velocity
+    else:
+        if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
+            if ball.x + ball.radius >= right_paddle.x:
+                ball.x_velocity *= -1
+                middle_y = right_paddle.y + right_paddle.height / 2
+                difference_y = middle_y - ball.y
+                reduction_factor = (right_paddle.height / 2) / ball.MAX_VELOCITY
+                y_velocity = difference_y / reduction_factor
+                ball.y_velocity = -1 * y_velocity
+
 def handle_paddle_movement(keys, left_paddle, right_paddle):
     if keys[pg.K_w] and left_paddle.y - left_paddle.VELOCITY >= 0:
         left_paddle.movePaddle(up=True)
@@ -103,6 +126,7 @@ def main():
         handle_paddle_movement(keys, left_paddle, right_paddle)
 
         ball.moveBall()
+        handle_collision(ball, left_paddle, right_paddle)
 
     pg.quit()
 
